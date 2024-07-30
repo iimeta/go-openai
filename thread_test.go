@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	openai "github.com/sashabaranov/go-openai"
-	"github.com/sashabaranov/go-openai/internal/test/checks"
+	openai "github.com/iimeta/go-openai"
+	"github.com/iimeta/go-openai/internal/test/checks"
 )
 
 // TestThread Tests the thread endpoint of the API using the mocked server.
