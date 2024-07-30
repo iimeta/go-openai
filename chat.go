@@ -81,7 +81,7 @@ type ChatMessagePart struct {
 
 type ChatCompletionMessage struct {
 	Role         string `json:"role"`
-	Content      string `json:"content"`
+	Content      any    `json:"content"`
 	MultiContent []ChatMessagePart
 
 	// This property isn't in the official documentation, but it's in
@@ -103,21 +103,21 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 	if m.Content != "" && m.MultiContent != nil {
 		return nil, ErrContentFieldsMisused
 	}
-	if len(m.MultiContent) > 0 {
-		msg := struct {
-			Role         string            `json:"role"`
-			Content      string            `json:"-"`
-			MultiContent []ChatMessagePart `json:"content,omitempty"`
-			Name         string            `json:"name,omitempty"`
-			FunctionCall *FunctionCall     `json:"function_call,omitempty"`
-			ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
-			ToolCallID   string            `json:"tool_call_id,omitempty"`
-		}(m)
-		return json.Marshal(msg)
-	}
+	//if len(m.MultiContent) > 0 {
+	//	msg := struct {
+	//		Role         string            `json:"role"`
+	//		Content      any            `json:"-"`
+	//		MultiContent []ChatMessagePart `json:"content,omitempty"`
+	//		Name         string            `json:"name,omitempty"`
+	//		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
+	//		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
+	//		ToolCallID   string            `json:"tool_call_id,omitempty"`
+	//	}(m)
+	//	return json.Marshal(msg)
+	//}
 	msg := struct {
 		Role         string            `json:"role"`
-		Content      string            `json:"content"`
+		Content      any               `json:"content"`
 		MultiContent []ChatMessagePart `json:"-"`
 		Name         string            `json:"name,omitempty"`
 		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
@@ -130,7 +130,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 	msg := struct {
 		Role         string `json:"role"`
-		Content      string `json:"content"`
+		Content      any    `json:"content"`
 		MultiContent []ChatMessagePart
 		Name         string        `json:"name,omitempty"`
 		FunctionCall *FunctionCall `json:"function_call,omitempty"`
@@ -143,7 +143,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 	}
 	multiMsg := struct {
 		Role         string `json:"role"`
-		Content      string
+		Content      any
 		MultiContent []ChatMessagePart `json:"content"`
 		Name         string            `json:"name,omitempty"`
 		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
@@ -166,9 +166,9 @@ type ToolCall struct {
 }
 
 type FunctionCall struct {
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 	// call function with arguments in JSON format
-	Arguments string `json:"arguments,omitempty"`
+	Arguments string `json:"arguments"`
 }
 
 type ChatCompletionResponseFormatType string
