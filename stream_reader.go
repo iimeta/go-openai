@@ -31,18 +31,18 @@ type streamReader[T streamable] struct {
 	httpHeader
 }
 
-func (stream *streamReader[T]) Recv() (response T, err error) {
+func (stream *streamReader[T]) Recv() (responseBytes []byte, response T, err error) {
 	if stream.isFinished {
 		err = io.EOF
 		return
 	}
 
-	response, err = stream.processLines()
+	responseBytes, response, err = stream.processLines()
 	return
 }
 
 //nolint:gocognit
-func (stream *streamReader[T]) processLines() (T, error) {
+func (stream *streamReader[T]) processLines() ([]byte, T, error) {
 	var (
 		emptyMessagesCount uint
 		hasErrorPrefix     bool
@@ -53,9 +53,9 @@ func (stream *streamReader[T]) processLines() (T, error) {
 		if readErr != nil || hasErrorPrefix {
 			respErr := stream.unmarshalError()
 			if respErr != nil {
-				return *new(T), fmt.Errorf("error, %w", respErr.Error)
+				return nil, *new(T), fmt.Errorf("error, %w", respErr.Error)
 			}
-			return *new(T), readErr
+			return nil, *new(T), readErr
 		}
 
 		noSpaceLine := bytes.TrimSpace(rawLine)
@@ -68,11 +68,11 @@ func (stream *streamReader[T]) processLines() (T, error) {
 			}
 			writeErr := stream.errAccumulator.Write(noSpaceLine)
 			if writeErr != nil {
-				return *new(T), writeErr
+				return nil, *new(T), writeErr
 			}
 			emptyMessagesCount++
 			if emptyMessagesCount > stream.emptyMessagesLimit {
-				return *new(T), ErrTooManyEmptyStreamMessages
+				return nil, *new(T), ErrTooManyEmptyStreamMessages
 			}
 
 			continue
@@ -81,16 +81,16 @@ func (stream *streamReader[T]) processLines() (T, error) {
 		noPrefixLine := bytes.TrimPrefix(noSpaceLine, headerData)
 		if string(noPrefixLine) == "[DONE]" {
 			stream.isFinished = true
-			return *new(T), io.EOF
+			return nil, *new(T), io.EOF
 		}
 
 		var response T
 		unmarshalErr := stream.unmarshaler.Unmarshal(noPrefixLine, &response)
 		if unmarshalErr != nil {
-			return *new(T), unmarshalErr
+			return nil, *new(T), unmarshalErr
 		}
 
-		return response, nil
+		return noPrefixLine, response, nil
 	}
 }
 
