@@ -1,6 +1,7 @@
 package openai_test
 
 import (
+	"github.com/iimeta/go-openai"
 	"github.com/iimeta/go-openai/internal/test"
 )
 
