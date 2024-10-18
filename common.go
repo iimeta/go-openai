@@ -13,12 +13,18 @@ type Usage struct {
 
 // CompletionTokensDetails Breakdown of tokens used in a completion.
 type CompletionTokensDetails struct {
-	AudioTokens     int `json:"audio_tokens"`
-	ReasoningTokens int `json:"reasoning_tokens"`
+	AudioTokens          int `json:"audio_tokens"`
+	ReasoningTokens      int `json:"reasoning_tokens"`
+	CachedTokens         int `json:"cached_tokens"`
+	CachedTokensInternal int `json:"cached_tokens_internal"`
+	TextTokens           int `json:"text_tokens"`
+	ImageTokens          int `json:"image_tokens"`
 }
 
 // PromptTokensDetails Breakdown of tokens used in the prompt.
 type PromptTokensDetails struct {
-	AudioTokens  int `json:"audio_tokens"`
-	CachedTokens int `json:"cached_tokens"`
+	AudioTokens     int `json:"audio_tokens"`
+	CachedTokens    int `json:"cached_tokens"`
+	ReasoningTokens int `json:"reasoning_tokens"`
+	TextTokens      int `json:"text_tokens"`
 }

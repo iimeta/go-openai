@@ -93,7 +93,7 @@ type ChatMessagePart struct {
 
 type ChatCompletionMessage struct {
 	Role         string `json:"role"`
-	Content      any    `json:"content"`
+	Content      any    `json:"content,omitempty"`
 	Refusal      string `json:"refusal,omitempty"`
 	MultiContent []ChatMessagePart
 
@@ -110,6 +110,8 @@ type ChatCompletionMessage struct {
 
 	// For Role=tool prompts this should be set to the ID given in the assistant's prior request to call a tool.
 	ToolCallID string `json:"tool_call_id,omitempty"`
+
+	Audio *Audio `json:"audio,omitempty"`
 }
 
 func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
@@ -125,6 +127,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
 		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID   string            `json:"tool_call_id,omitempty"`
+		Audio        *Audio            `json:"audio,omitempty"`
 	}(m)
 	return json.Marshal(msg)
 }
@@ -139,6 +142,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		FunctionCall *FunctionCall `json:"function_call,omitempty"`
 		ToolCalls    []ToolCall    `json:"tool_calls,omitempty"`
 		ToolCallID   string        `json:"tool_call_id,omitempty"`
+		Audio        *Audio        `json:"audio,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(bs, &msg); err == nil {
@@ -154,6 +158,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		FunctionCall *FunctionCall     `json:"function_call,omitempty"`
 		ToolCalls    []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID   string            `json:"tool_call_id,omitempty"`
+		Audio        *Audio            `json:"audio,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &multiMsg); err != nil {
 		return err
@@ -174,6 +179,13 @@ type FunctionCall struct {
 	Name string `json:"name"`
 	// call function with arguments in JSON format
 	Arguments string `json:"arguments"`
+}
+
+type Audio struct {
+	Id         string `json:"id,omitempty"`
+	Data       string `json:"data,omitempty"`
+	ExpiresAt  int    `json:"expires_at,omitempty"`
+	Transcript string `json:"transcript,omitempty"`
 }
 
 type ChatCompletionResponseFormatType string
@@ -246,6 +258,12 @@ type ChatCompletionRequest struct {
 	Store bool `json:"store,omitempty"`
 	// Metadata to store with the completion.
 	Metadata map[string]string `json:"metadata,omitempty"`
+
+	Modalities []string `json:"modalities,omitempty"`
+	Audio      *struct {
+		Voice  string `json:"voice,omitempty"`
+		Format string `json:"format,omitempty"`
+	} `json:"audio,omitempty"`
 }
 
 type StreamOptions struct {

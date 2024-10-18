@@ -10,6 +10,7 @@ type ChatCompletionStreamChoiceDelta struct {
 	Role         string        `json:"role,omitempty"`
 	FunctionCall *FunctionCall `json:"function_call,omitempty"`
 	ToolCalls    []ToolCall    `json:"tool_calls,omitempty"`
+	Audio        *Audio        `json:"audio,omitempty"`
 }
 
 type ChatCompletionStreamChoice struct {
