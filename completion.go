@@ -14,11 +14,11 @@ var (
 )
 
 var (
-	ErrO1BetaLimitationsMessageTypes = errors.New("this model has beta-limitations, user and assistant messages only, system messages are not supported")                                  //nolint:lll
-	ErrO1BetaLimitationsStreaming    = errors.New("this model has beta-limitations, streaming not supported")                                                                              //nolint:lll
-	ErrO1BetaLimitationsTools        = errors.New("this model has beta-limitations, tools, function calling, and response format parameters are not supported")                            //nolint:lll
-	ErrO1BetaLimitationsLogprobs     = errors.New("this model has beta-limitations, logprobs not supported")                                                                               //nolint:lll
-	ErrO1BetaLimitationsOther        = errors.New("this model has beta-limitations, temperature, top_p and n are fixed at 1, while presence_penalty and frequency_penalty are fixed at 0") //nolint:lll
+	ErrO1BetaLimitationsMessageTypes = errors.New("this model has beta-limitations, user and assistant messages only, system messages are not supported")                               //nolint:lll
+	ErrO1BetaLimitationsStreaming    = errors.New("this model has beta-limitations, streaming not supported")                                                                           //nolint:lll
+	ErrO1BetaLimitationsTools        = errors.New("this model has beta-limitations, tools, function calling, and response format parameters are not supported")                         //nolint:lll
+	ErrO1BetaLimitationsLogprobs     = errors.New("this model has beta-limitations, logprobs not supported")                                                                            //nolint:lll
+	ErrO1BetaLimitationsOther        = errors.New("this model has beta-limitations, temperature and top_p are fixed at 1, while presence_penalty and frequency_penalty are fixed at 0") //nolint:lll
 )
 
 // GPT3 Defines the models provided by OpenAI to use when generating
@@ -161,7 +161,23 @@ func checkEndpointSupportsModel(endpoint, model string) bool {
 func checkPromptType(prompt any) bool {
 	_, isString := prompt.(string)
 	_, isStringSlice := prompt.([]string)
-	return isString || isStringSlice
+	if isString || isStringSlice {
+		return true
+	}
+
+	// check if it is prompt is []string hidden under []any
+	slice, isSlice := prompt.([]any)
+	if !isSlice {
+		return false
+	}
+
+	for _, item := range slice {
+		_, itemIsString := item.(string)
+		if !itemIsString {
+			return false
+		}
+	}
+	return true // all items in the slice are string, so it is []string
 }
 
 var unsupportedToolsForO1Models = map[ToolType]struct{}{
@@ -208,14 +224,11 @@ func validateRequestForO1Models(request ChatCompletionRequest) error {
 		}
 	}
 
-	// Other: temperature, top_p and n are fixed at 1, while presence_penalty and frequency_penalty are fixed at 0.
+	// Other: temperature and top_p are fixed at 1, while presence_penalty and frequency_penalty are fixed at 0.
 	if request.Temperature > 0 && request.Temperature != 1 {
 		return ErrO1BetaLimitationsOther
 	}
 	if request.TopP > 0 && request.TopP != 1 {
-		return ErrO1BetaLimitationsOther
-	}
-	if request.N > 0 && request.N != 1 {
 		return ErrO1BetaLimitationsOther
 	}
 	if request.PresencePenalty > 0 {
