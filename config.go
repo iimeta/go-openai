@@ -65,7 +65,7 @@ func DefaultAzureConfig(apiKey, baseURL string) ClientConfig {
 		BaseURL:    baseURL,
 		OrgID:      "",
 		APIType:    APITypeAzure,
-		APIVersion: "2024-10-01", // 2023-05-15
+		APIVersion: "2024-10-01-preview", // 2023-05-15
 		AzureModelMapperFunc: func(model string) string {
 			return regexp.MustCompile(`[.:]`).ReplaceAllString(model, "")
 		},
