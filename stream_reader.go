@@ -32,17 +32,28 @@ type streamReader[T streamable] struct {
 }
 
 func (stream *streamReader[T]) Recv() (responseBytes []byte, response T, err error) {
-	if stream.isFinished {
-		err = io.EOF
+	rawLine, err := stream.RecvRaw()
+	if err != nil {
 		return
 	}
 
-	responseBytes, response, err = stream.processLines()
-	return
+	err = stream.unmarshaler.Unmarshal(rawLine, &response)
+	if err != nil {
+		return
+	}
+	return rawLine, response, nil
+}
+
+func (stream *streamReader[T]) RecvRaw() ([]byte, error) {
+	if stream.isFinished {
+		return nil, io.EOF
+	}
+
+	return stream.processLines()
 }
 
 //nolint:gocognit
-func (stream *streamReader[T]) processLines() ([]byte, T, error) {
+func (stream *streamReader[T]) processLines() ([]byte, error) {
 	var (
 		emptyMessagesCount uint
 		hasErrorPrefix     bool
@@ -53,9 +64,9 @@ func (stream *streamReader[T]) processLines() ([]byte, T, error) {
 		if readErr != nil || hasErrorPrefix {
 			respErr := stream.unmarshalError()
 			if respErr != nil {
-				return nil, *new(T), fmt.Errorf("error, %w", respErr.Error)
+				return nil, fmt.Errorf("error, %w", respErr.Error)
 			}
-			return nil, *new(T), readErr
+			return nil, readErr
 		}
 
 		noSpaceLine := bytes.TrimSpace(rawLine)
@@ -68,11 +79,11 @@ func (stream *streamReader[T]) processLines() ([]byte, T, error) {
 			}
 			writeErr := stream.errAccumulator.Write(noSpaceLine)
 			if writeErr != nil {
-				return nil, *new(T), writeErr
+				return nil, writeErr
 			}
 			emptyMessagesCount++
 			if emptyMessagesCount > stream.emptyMessagesLimit {
-				return nil, *new(T), ErrTooManyEmptyStreamMessages
+				return nil, ErrTooManyEmptyStreamMessages
 			}
 
 			continue
@@ -81,16 +92,10 @@ func (stream *streamReader[T]) processLines() ([]byte, T, error) {
 		noPrefixLine := bytes.TrimPrefix(noSpaceLine, headerData)
 		if string(noPrefixLine) == "[DONE]" {
 			stream.isFinished = true
-			return nil, *new(T), io.EOF
+			return nil, io.EOF
 		}
 
-		var response T
-		unmarshalErr := stream.unmarshaler.Unmarshal(noPrefixLine, &response)
-		if unmarshalErr != nil {
-			return nil, *new(T), unmarshalErr
-		}
-
-		return noPrefixLine, response, nil
+		return noPrefixLine, nil
 	}
 }
 
