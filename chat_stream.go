@@ -74,18 +74,13 @@ func (c *Client) CreateChatCompletionStream(
 	ctx context.Context,
 	request ChatCompletionRequest,
 ) (stream *ChatCompletionStream, err error) {
-	urlSuffix := chatCompletionsSuffix
-	if !checkEndpointSupportsModel(urlSuffix, request.Model) {
-		err = ErrChatCompletionInvalidModel
-		return
-	}
 
 	request.Stream = true
 
 	req, err := c.newRequest(
 		ctx,
 		http.MethodPost,
-		c.fullURL(urlSuffix, withModel(request.Model)),
+		c.fullURL(chatCompletionsSuffix, withModel(request.Model)),
 		withBody(request),
 	)
 	if err != nil {
@@ -96,8 +91,10 @@ func (c *Client) CreateChatCompletionStream(
 	if err != nil {
 		return
 	}
+
 	stream = &ChatCompletionStream{
 		streamReader: resp,
 	}
+
 	return
 }

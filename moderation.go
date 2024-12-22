@@ -35,7 +35,7 @@ var validModerationModel = map[string]struct{}{
 
 // ModerationRequest represents a request structure for moderation API.
 type ModerationRequest struct {
-	Input string `json:"input,omitempty"`
+	Input any    `json:"input,omitempty"`
 	Model string `json:"model,omitempty"`
 }
 
@@ -78,9 +78,9 @@ type ResultCategoryScores struct {
 
 // ModerationResponse represents a response structure for moderation API.
 type ModerationResponse struct {
-	ID      string   `json:"id"`
-	Model   string   `json:"model"`
-	Results []Result `json:"results"`
+	Id      string `json:"id"`
+	Model   string `json:"model"`
+	Results any    `json:"results"`
 
 	httpHeader
 }
@@ -88,10 +88,7 @@ type ModerationResponse struct {
 // Moderations — perform a moderation api call over a string.
 // Input can be an array or slice but a string will reduce the complexity.
 func (c *Client) Moderations(ctx context.Context, request ModerationRequest) (response ModerationResponse, err error) {
-	if _, ok := validModerationModel[request.Model]; len(request.Model) > 0 && !ok {
-		err = ErrModerationInvalidModel
-		return
-	}
+
 	req, err := c.newRequest(
 		ctx,
 		http.MethodPost,
@@ -103,5 +100,6 @@ func (c *Client) Moderations(ctx context.Context, request ModerationRequest) (re
 	}
 
 	err = c.sendRequest(req, &response)
+
 	return
 }

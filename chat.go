@@ -383,21 +383,16 @@ func (c *Client) CreateChatCompletion(
 	ctx context.Context,
 	request ChatCompletionRequest,
 ) (response ChatCompletionResponse, err error) {
+
 	if request.Stream {
 		err = ErrChatCompletionStreamNotSupported
-		return
-	}
-
-	urlSuffix := chatCompletionsSuffix
-	if !checkEndpointSupportsModel(urlSuffix, request.Model) {
-		err = ErrChatCompletionInvalidModel
 		return
 	}
 
 	req, err := c.newRequest(
 		ctx,
 		http.MethodPost,
-		c.fullURL(urlSuffix, withModel(request.Model)),
+		c.fullURL(chatCompletionsSuffix, withModel(request.Model)),
 		withBody(request),
 	)
 	if err != nil {
@@ -405,5 +400,6 @@ func (c *Client) CreateChatCompletion(
 	}
 
 	err = c.sendRequest(req, &response)
+
 	return
 }
