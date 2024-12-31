@@ -213,11 +213,11 @@ func validateRequestForO1Models(request ChatCompletionRequest) error {
 	}
 
 	// Tools: tools, function calling, and response format parameters are not supported
-	for _, t := range request.Tools {
-		if _, found := unsupportedToolsForO1Models[t.Type]; found {
-			return ErrO1BetaLimitationsTools
-		}
-	}
+	//for _, t := range request.Tools {
+	//	if _, found := unsupportedToolsForO1Models[t.Type]; found {
+	//		return ErrO1BetaLimitationsTools
+	//	}
+	//}
 
 	// Other: temperature and top_p are fixed at 1, while presence_penalty and frequency_penalty are fixed at 0.
 	if request.Temperature > 0 && request.Temperature != 1 {
