@@ -258,6 +258,8 @@ type ChatCompletionRequest struct {
 	Store bool `json:"store,omitempty"`
 	// Metadata to store with the completion.
 	Metadata map[string]string `json:"metadata,omitempty"`
+	// o1 models only
+	ReasoningEffort string `json:"reasoning_effort,omitempty"`
 
 	Modalities []string `json:"modalities,omitempty"`
 	Audio      *struct {
