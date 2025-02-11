@@ -6,12 +6,13 @@ import (
 )
 
 type ChatCompletionStreamChoiceDelta struct {
-	Content      string        `json:"content"`
-	Role         string        `json:"role,omitempty"`
-	FunctionCall *FunctionCall `json:"function_call,omitempty"`
-	ToolCalls    []ToolCall    `json:"tool_calls,omitempty"`
-	Refusal      string        `json:"refusal,omitempty"`
-	Audio        *Audio        `json:"audio,omitempty"`
+	Content          string        `json:"content"`
+	ReasoningContent any           `json:"reasoning_content,omitempty"`
+	Role             string        `json:"role,omitempty"`
+	FunctionCall     *FunctionCall `json:"function_call,omitempty"`
+	ToolCalls        []ToolCall    `json:"tool_calls,omitempty"`
+	Refusal          string        `json:"refusal,omitempty"`
+	Audio            *Audio        `json:"audio,omitempty"`
 }
 
 type ChatCompletionStreamChoiceLogprobs struct {

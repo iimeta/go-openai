@@ -16,6 +16,7 @@ import (
 // Client is OpenAI GPT-3 API client.
 type Client struct {
 	config ClientConfig
+	Header http.Header
 
 	requestBuilder    utils.RequestBuilder
 	createFormBuilder func(io.Writer) utils.FormBuilder
@@ -97,11 +98,17 @@ func withBetaAssistantVersion(version string) requestOption {
 }
 
 func (c *Client) newRequest(ctx context.Context, method, url string, setters ...requestOption) (*http.Request, error) {
+
 	// Default Options
 	args := &requestOptions{
 		body:   nil,
-		header: make(http.Header),
+		header: c.Header,
 	}
+
+	if args.header == nil {
+		args.header = make(http.Header)
+	}
+
 	for _, setter := range setters {
 		setter(args)
 	}
