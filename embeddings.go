@@ -71,7 +71,7 @@ func (e *Embedding) DotProduct(other *Embedding) (float32, error) {
 // EmbeddingResponse is the response from a Create embeddings request.
 type EmbeddingResponse struct {
 	Object string         `json:"object"`
-	Data   []Embedding    `json:"data"`
+	Data   []any          `json:"data"`
 	Model  EmbeddingModel `json:"model"`
 	Usage  Usage          `json:"usage"`
 
@@ -113,29 +113,29 @@ type EmbeddingResponseBase64 struct {
 }
 
 // ToEmbeddingResponse converts an embeddingResponseBase64 to an EmbeddingResponse.
-func (r *EmbeddingResponseBase64) ToEmbeddingResponse() (EmbeddingResponse, error) {
-	data := make([]Embedding, len(r.Data))
-
-	for i, base64Embedding := range r.Data {
-		embedding, err := base64Embedding.Embedding.Decode()
-		if err != nil {
-			return EmbeddingResponse{}, err
-		}
-
-		data[i] = Embedding{
-			Object:    base64Embedding.Object,
-			Embedding: embedding,
-			Index:     base64Embedding.Index,
-		}
-	}
-
-	return EmbeddingResponse{
-		Object: r.Object,
-		Model:  r.Model,
-		Data:   data,
-		Usage:  r.Usage,
-	}, nil
-}
+//func (r *EmbeddingResponseBase64) ToEmbeddingResponse() (EmbeddingResponse, error) {
+//	data := make([]Embedding, len(r.Data))
+//
+//	for i, base64Embedding := range r.Data {
+//		embedding, err := base64Embedding.Embedding.Decode()
+//		if err != nil {
+//			return EmbeddingResponse{}, err
+//		}
+//
+//		data[i] = Embedding{
+//			Object:    base64Embedding.Object,
+//			Embedding: embedding,
+//			Index:     base64Embedding.Index,
+//		}
+//	}
+//
+//	return EmbeddingResponse{
+//		Object: r.Object,
+//		Model:  r.Model,
+//		Data:   data,
+//		Usage:  r.Usage,
+//	}, nil
+//}
 
 type EmbeddingRequestConverter interface {
 	// Needs to be of type EmbeddingRequestStrings or EmbeddingRequestTokens
@@ -251,17 +251,20 @@ func (c *Client) CreateEmbeddings(
 		return
 	}
 
-	if baseReq.EncodingFormat != EmbeddingEncodingFormatBase64 {
-		err = c.sendRequest(req, &res)
-		return
-	}
-
-	base64Response := &EmbeddingResponseBase64{}
-	err = c.sendRequest(req, base64Response)
-	if err != nil {
-		return
-	}
-
-	res, err = base64Response.ToEmbeddingResponse()
+	err = c.sendRequest(req, &res)
 	return
+
+	//if baseReq.EncodingFormat != EmbeddingEncodingFormatBase64 {
+	//	err = c.sendRequest(req, &res)
+	//	return
+	//}
+	//
+	//base64Response := &EmbeddingResponseBase64{}
+	//err = c.sendRequest(req, base64Response)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//res, err = base64Response.ToEmbeddingResponse()
+	//return
 }
