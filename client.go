@@ -260,7 +260,9 @@ func (c *Client) fullURL(suffix string, setters ...fullURLOption) string {
 	}
 
 	if c.config.APIType == APITypeAzure || c.config.APIType == APITypeAzureAD {
-		baseURL = c.baseURLWithAzureDeployment(baseURL, suffix, args.model)
+		if parse, _ := url.Parse(baseURL); parse == nil || parse.Path == "" {
+			baseURL = c.baseURLWithAzureDeployment(baseURL, suffix, args.model)
+		}
 	}
 
 	if c.config.APIVersion != "" {
