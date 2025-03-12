@@ -13,6 +13,7 @@ type ChatCompletionStreamChoiceDelta struct {
 	ToolCalls        []ToolCall    `json:"tool_calls,omitempty"`
 	Refusal          string        `json:"refusal,omitempty"`
 	Audio            *Audio        `json:"audio,omitempty"`
+	Annotations      any           `json:"annotations,omitempty"`
 }
 
 type ChatCompletionStreamChoiceLogprobs struct {
