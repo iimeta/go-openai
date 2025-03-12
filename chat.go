@@ -270,6 +270,7 @@ type ChatCompletionRequest struct {
 		Voice  string `json:"voice,omitempty"`
 		Format string `json:"format,omitempty"`
 	} `json:"audio,omitempty"`
+	WebSearchOptions any `json:"web_search_options,omitempty"`
 }
 
 type StreamOptions struct {
