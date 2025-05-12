@@ -9,6 +9,9 @@ type Usage struct {
 	TotalTokens             int                      `json:"total_tokens"`
 	PromptTokensDetails     *PromptTokensDetails     `json:"prompt_tokens_details"`
 	CompletionTokensDetails *CompletionTokensDetails `json:"completion_tokens_details"`
+	InputTokens             int                      `json:"input_tokens"`
+	OutputTokens            int                      `json:"output_tokens"`
+	InputTokensDetails      InputTokensDetails       `json:"input_tokens_details"`
 }
 
 // CompletionTokensDetails Breakdown of tokens used in a completion.
@@ -27,4 +30,9 @@ type PromptTokensDetails struct {
 	CachedTokens    int `json:"cached_tokens"`
 	ReasoningTokens int `json:"reasoning_tokens"`
 	TextTokens      int `json:"text_tokens"`
+}
+
+type InputTokensDetails struct {
+	TextTokens  int `json:"text_tokens"`
+	ImageTokens int `json:"image_tokens"`
 }

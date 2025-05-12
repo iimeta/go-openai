@@ -40,20 +40,25 @@ const (
 
 // ImageRequest represents the request structure for the image API.
 type ImageRequest struct {
-	Prompt         string `json:"prompt,omitempty"`
-	Model          string `json:"model,omitempty"`
-	N              int    `json:"n,omitempty"`
-	Quality        string `json:"quality,omitempty"`
-	Size           string `json:"size,omitempty"`
-	Style          string `json:"style,omitempty"`
-	ResponseFormat string `json:"response_format,omitempty"`
-	User           string `json:"user,omitempty"`
+	Prompt            string `json:"prompt,omitempty"`
+	Background        string `json:"background,omitempty"`
+	Model             string `json:"model,omitempty"`
+	Moderation        string `json:"moderation,omitempty"`
+	N                 int    `json:"n,omitempty"`
+	OutputCompression int    `json:"output_compression,omitempty"`
+	OutputFormat      string `json:"output_format,omitempty"`
+	Quality           string `json:"quality,omitempty"`
+	ResponseFormat    string `json:"response_format,omitempty"`
+	Size              string `json:"size,omitempty"`
+	Style             string `json:"style,omitempty"`
+	User              string `json:"user,omitempty"`
 }
 
 // ImageResponse represents a response structure for image API.
 type ImageResponse struct {
 	Created int64                    `json:"created,omitempty"`
 	Data    []ImageResponseDataInner `json:"data,omitempty"`
+	Usage   Usage                    `json:"usage,omitempty"`
 
 	httpHeader
 }
