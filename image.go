@@ -3,6 +3,7 @@ package openai
 import (
 	"bytes"
 	"context"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -89,13 +90,16 @@ func (c *Client) CreateImage(ctx context.Context, request ImageRequest) (respons
 
 // ImageEditRequest represents the request structure for the image API.
 type ImageEditRequest struct {
-	Image          *os.File `json:"image,omitempty"`
-	Mask           *os.File `json:"mask,omitempty"`
-	Prompt         string   `json:"prompt,omitempty"`
-	Model          string   `json:"model,omitempty"`
-	N              int      `json:"n,omitempty"`
-	Size           string   `json:"size,omitempty"`
-	ResponseFormat string   `json:"response_format,omitempty"`
+	Image          []*multipart.FileHeader `json:"image,omitempty"`
+	Prompt         string                  `json:"prompt,omitempty"`
+	Background     string                  `json:"background,omitempty"`
+	Mask           *multipart.FileHeader   `json:"mask,omitempty"`
+	Model          string                  `json:"model,omitempty"`
+	N              int                     `json:"n,omitempty"`
+	Quality        string                  `json:"quality,omitempty"`
+	ResponseFormat string                  `json:"response_format,omitempty"`
+	Size           string                  `json:"size,omitempty"`
+	User           string                  `json:"user,omitempty"`
 }
 
 // CreateEditImage - API call to create an image. This is the main endpoint of the DALL-E API.
@@ -103,15 +107,8 @@ func (c *Client) CreateEditImage(ctx context.Context, request ImageEditRequest) 
 	body := &bytes.Buffer{}
 	builder := c.createFormBuilder(body)
 
-	// image
-	err = builder.CreateFormFile("image", request.Image)
-	if err != nil {
-		return
-	}
-
-	// mask, it is optional
-	if request.Mask != nil {
-		err = builder.CreateFormFile("mask", request.Mask)
+	for _, image := range request.Image {
+		err = builder.CreateFormFileHeader("image", image)
 		if err != nil {
 			return
 		}
@@ -122,7 +119,29 @@ func (c *Client) CreateEditImage(ctx context.Context, request ImageEditRequest) 
 		return
 	}
 
+	err = builder.WriteField("background", request.Background)
+	if err != nil {
+		return
+	}
+
+	if request.Mask != nil {
+		err = builder.CreateFormFileHeader("mask", request.Mask)
+		if err != nil {
+			return
+		}
+	}
+
 	err = builder.WriteField("n", strconv.Itoa(request.N))
+	if err != nil {
+		return
+	}
+
+	err = builder.WriteField("quality", request.Quality)
+	if err != nil {
+		return
+	}
+
+	err = builder.WriteField("response_format", request.ResponseFormat)
 	if err != nil {
 		return
 	}
@@ -132,7 +151,7 @@ func (c *Client) CreateEditImage(ctx context.Context, request ImageEditRequest) 
 		return
 	}
 
-	err = builder.WriteField("response_format", request.ResponseFormat)
+	err = builder.WriteField("user", request.User)
 	if err != nil {
 		return
 	}
