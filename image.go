@@ -104,67 +104,74 @@ type ImageEditRequest struct {
 
 // CreateEditImage - API call to create an image. This is the main endpoint of the DALL-E API.
 func (c *Client) CreateEditImage(ctx context.Context, request ImageEditRequest) (response ImageResponse, err error) {
+
 	body := &bytes.Buffer{}
 	builder := c.createFormBuilder(body)
 
+	if err = builder.WriteField("model", request.Model); err != nil {
+		return
+	}
+
 	for _, image := range request.Image {
-		err = builder.CreateFormFileHeader("image", image)
-		if err != nil {
+		if err = builder.CreateFormFileHeader("image", image); err != nil {
 			return
 		}
 	}
 
-	err = builder.WriteField("prompt", request.Prompt)
-	if err != nil {
+	if err = builder.WriteField("prompt", request.Prompt); err != nil {
 		return
 	}
 
-	err = builder.WriteField("background", request.Background)
-	if err != nil {
-		return
+	if request.Background != "" {
+		if err = builder.WriteField("background", request.Background); err != nil {
+			return
+		}
 	}
 
 	if request.Mask != nil {
-		err = builder.CreateFormFileHeader("mask", request.Mask)
-		if err != nil {
+		if err = builder.CreateFormFileHeader("mask", request.Mask); err != nil {
 			return
 		}
 	}
 
-	err = builder.WriteField("n", strconv.Itoa(request.N))
-	if err != nil {
-		return
+	if request.N != 0 {
+		if err = builder.WriteField("n", strconv.Itoa(request.N)); err != nil {
+			return
+		}
 	}
 
-	err = builder.WriteField("quality", request.Quality)
-	if err != nil {
-		return
+	if request.Quality != "" {
+		if err = builder.WriteField("quality", request.Quality); err != nil {
+			return
+		}
 	}
 
-	err = builder.WriteField("response_format", request.ResponseFormat)
-	if err != nil {
-		return
+	if request.ResponseFormat != "" {
+		if err = builder.WriteField("response_format", request.ResponseFormat); err != nil {
+			return
+		}
 	}
 
-	err = builder.WriteField("size", request.Size)
-	if err != nil {
-		return
+	if request.Size != "" {
+		if err = builder.WriteField("size", request.Size); err != nil {
+			return
+		}
 	}
 
-	err = builder.WriteField("user", request.User)
-	if err != nil {
-		return
+	if request.User != "" {
+		if err = builder.WriteField("user", request.User); err != nil {
+			return
+		}
 	}
 
-	err = builder.Close()
-	if err != nil {
+	if err = builder.Close(); err != nil {
 		return
 	}
 
 	req, err := c.newRequest(
 		ctx,
 		http.MethodPost,
-		c.fullURL("/images/edits", withModel(request.Model)),
+		c.fullURL("/images/edits"),
 		withBody(body),
 		withContentType(builder.FormDataContentType()),
 	)

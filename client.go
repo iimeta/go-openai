@@ -145,6 +145,17 @@ func (c *Client) sendRequest(req *http.Request, v Response) error {
 		return c.handleErrorResp(res)
 	}
 
+	//body, err := io.ReadAll(res.Body)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//if err = json.Unmarshal(body, v); err != nil {
+	//	return err
+	//}
+	//
+	//return nil
+
 	return decodeResponse(res.Body, v)
 }
 
