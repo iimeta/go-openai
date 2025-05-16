@@ -114,7 +114,7 @@ type ChatCompletionMessage struct {
 
 	Audio *Audio `json:"audio,omitempty"`
 
-	Annotations []any `json:"annotations"`
+	Annotations []any `json:"annotations,omitempty"`
 }
 
 func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
@@ -132,7 +132,7 @@ func (m ChatCompletionMessage) MarshalJSON() ([]byte, error) {
 		ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID       string            `json:"tool_call_id,omitempty"`
 		Audio            *Audio            `json:"audio,omitempty"`
-		Annotations      []any             `json:"annotations"`
+		Annotations      []any             `json:"annotations,omitempty"`
 	}(m)
 	return json.Marshal(msg)
 }
@@ -149,7 +149,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		ToolCalls        []ToolCall    `json:"tool_calls,omitempty"`
 		ToolCallID       string        `json:"tool_call_id,omitempty"`
 		Audio            *Audio        `json:"audio,omitempty"`
-		Annotations      []any         `json:"annotations"`
+		Annotations      []any         `json:"annotations,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(bs, &msg); err == nil {
@@ -167,7 +167,7 @@ func (m *ChatCompletionMessage) UnmarshalJSON(bs []byte) error {
 		ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
 		ToolCallID       string            `json:"tool_call_id,omitempty"`
 		Audio            *Audio            `json:"audio,omitempty"`
-		Annotations      []any             `json:"annotations"`
+		Annotations      []any             `json:"annotations,omitempty"`
 	}{}
 	if err := json.Unmarshal(bs, &multiMsg); err != nil {
 		return err
