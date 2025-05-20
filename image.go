@@ -112,9 +112,17 @@ func (c *Client) CreateEditImage(ctx context.Context, request ImageEditRequest) 
 		return
 	}
 
-	for _, image := range request.Image {
-		if err = builder.CreateFormFileHeader("image", image); err != nil {
-			return
+	if len(request.Image) > 0 {
+		if len(request.Image) == 1 {
+			if err = builder.CreateFormFileHeader("image", request.Image[0]); err != nil {
+				return
+			}
+		} else {
+			for _, image := range request.Image {
+				if err = builder.CreateFormFileHeader("image[]", image); err != nil {
+					return
+				}
+			}
 		}
 	}
 
