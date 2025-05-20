@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/textproto"
 	"os"
 	"path"
+	"strings"
 )
 
 type FormBuilder interface {
@@ -64,7 +66,19 @@ func (fb *DefaultFormBuilder) createFormFileHeader(fieldname string, fileHeader 
 	}
 	defer file.Close()
 
-	fieldWriter, err := fb.writer.CreateFormFile(fieldname, fileHeader.Filename)
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, escapeQuotes(fieldname), escapeQuotes(fileHeader.Filename)))
+
+	contentType := "image/jpeg"
+	if strings.HasSuffix(fileHeader.Filename, ".webp") {
+		contentType = "image/webp"
+	} else if strings.HasSuffix(fileHeader.Filename, ".png") {
+		contentType = "image/png"
+	}
+
+	h.Set("Content-Type", contentType)
+
+	fieldWriter, err := fb.writer.CreatePart(h)
 	if err != nil {
 		return err
 	}
@@ -87,4 +101,10 @@ func (fb *DefaultFormBuilder) Close() error {
 
 func (fb *DefaultFormBuilder) FormDataContentType() string {
 	return fb.writer.FormDataContentType()
+}
+
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
 }
