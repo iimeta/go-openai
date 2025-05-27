@@ -10,7 +10,7 @@ type ChatCompletionStreamChoiceDelta struct {
 	ReasoningContent any           `json:"reasoning_content,omitempty"`
 	Role             string        `json:"role,omitempty"`
 	FunctionCall     *FunctionCall `json:"function_call,omitempty"`
-	ToolCalls        []ToolCall    `json:"tool_calls,omitempty"`
+	ToolCalls        any           `json:"tool_calls,omitempty"`
 	Refusal          string        `json:"refusal,omitempty"`
 	Audio            *Audio        `json:"audio,omitempty"`
 	Annotations      []any         `json:"annotations"`
